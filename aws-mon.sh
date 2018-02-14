@@ -23,8 +23,8 @@ SCRIPT_VERSION=1.1
 instanceid=`wget -q -O - http://169.254.169.254/latest/meta-data/instance-id`
 azone=`wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone`
 region=${azone/%?/}
-AWS_DEFAULT_REGION=$region
-autoscaling_group=$(aws autoscaling describe-auto-scaling-instances --instance-ids="$(curl http://169.254.169.254/latest/meta-data/instance-id)" --region ap-northeast-1 | jq -r .AutoScalingInstances[0].AutoScalingGroupName)
+export EC2_REGION=$region
+autoscaling_group=$(aws autoscaling describe-auto-scaling-instances --instance-ids="$(curl http://169.254.169.254/latest/meta-data/instance-id)" --region $EC2_REGION | jq -r .AutoScalingInstances[0].AutoScalingGroupName)
 
 
 ########################################
@@ -317,7 +317,7 @@ if [ $FROM_CRON -eq 1 ]; then
 fi
 
 # CloudWatch Command Line Interface Option
-CLOUDWATCH_OPTS="--namespace System/Detail/Linux --dimensions InstanceId=$instanceid"
+CLOUDWATCH_OPTS="--namespace System/Detail/Linux --dimensions InstanceId=$instanceid --region"
 CLOUDWATCH_OPTS_AS="--namespace System/Detail/Linux --dimensions AutoScalingGroupName=$autoscaling_group"
 if [ -n "$PROFILE" ]; then
     CLOUDWATCH_OPTS="$CLOUDWATCH_OPTS --profile $PROFILE"
@@ -343,7 +343,7 @@ if [ $LOAD_AVE1 -eq 1 ]; then
         echo "loadave1:$loadave1"
     fi
     if [ $VERIFY -eq 0 ]; then
-        aws cloudwatch put-metric-data --metric-name "LoadAverage1Min" --value "$loadave1" --unit "Count" $CLOUDWATCH_OPTS 
+        aws cloudwatch put-metric-data --metric-name "LoadAverage1Min" --value "$loadave1" --unit "Count" $CLOUDWATCH_OPTS
         aws cloudwatch put-metric-data --metric-name "LoadAverage1Min" --value "$loadave1" --unit "Count" $CLOUDWATCH_OPTS_AS
     fi
 fi
