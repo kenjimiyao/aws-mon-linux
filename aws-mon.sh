@@ -23,7 +23,7 @@ SCRIPT_VERSION=1.1
 instanceid=`wget -q -O - http://169.254.169.254/latest/meta-data/instance-id`
 azone=`wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone`
 region=${azone/%?/}
-export EC2_REGION=$region
+AWS_DEFAULT_REGION=$region
 autoscaling_group=$(aws autoscaling describe-auto-scaling-instances --instance-ids="$(curl http://169.254.169.254/latest/meta-data/instance-id)" --region ap-northeast-1 | jq -r .AutoScalingInstances[0].AutoScalingGroupName)
 
 
