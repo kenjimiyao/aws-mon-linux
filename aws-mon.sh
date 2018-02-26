@@ -180,9 +180,6 @@ while true; do
             shift
             MEM_UNITS=$1
             ;;
-        --mem-used-incl-cache-buff)
-            MEM_USED_INCL_CACHE_BUFF=1
-            ;;
         --mem-util)
             MEM_UTIL=1  
             ;;
@@ -461,10 +458,8 @@ mem_cached=`getMemInfo "Cached"`
 mem_cached=`expr $mem_cached \* $KILO`
 mem_buffers=`getMemInfo "Buffers"`
 mem_buffers=`expr $mem_buffers \* $KILO`
-mem_avail=$mem_free
-if [ $MEM_USED_INCL_CACHE_BUFF -eq 1 ]; then
-    mem_avail=`expr $mem_avail + $mem_cached + $mem_buffers`
-fi
+mem_avail=`getMemInfo "MemAvailable"`
+mem_avail=`expr $mem_free \* $KILO`
 mem_used=`expr $mem_total - $mem_avail`
 swap_total=`getMemInfo "SwapTotal"`
 swap_total=`expr $swap_total \* $KILO`
